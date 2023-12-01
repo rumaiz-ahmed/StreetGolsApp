@@ -27,6 +27,7 @@ import ForgotPasswordScreen from "../auth/forgotPasswordScreen";
 import HomeScreen from "../app/homeScreen";
 import SettingsScreen from "../app/settingsScreen";
 import Pitches from "../app/pitchesScreen";
+import CreateMatchScreen from "../app/createMatchScreen";
 
 // Tab Flow
 
@@ -60,6 +61,7 @@ export type AppStackParamList = {
   Settings: undefined;
   Pitches: undefined;
   PitchInfo: { pitchId: string };
+  CreateMatch: {pitchId: string};
 };
 
 const AppStacker = createNativeStackNavigator<AppStackParamList>();
@@ -96,6 +98,14 @@ const AppStack = () => {
           headerShown: false,
         }}
       />
+      <AppStacker.Screen
+        name="CreateMatch"
+        component={CreateMatchScreen}
+        initialParams={{pitchId: "1"}}
+        options={{
+          headerShown: false,
+        }}
+        />
     </AppStacker.Navigator>
   );
 };

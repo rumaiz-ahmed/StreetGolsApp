@@ -100,11 +100,11 @@ const PitchInfoScreen = ({ navigation, route }: Props) => {
         style={pitchInfo.button}
         labelStyle={pitchInfo.buttonIcon}
         mode="contained"
-        // onPress={() => {
-        //   navigation.navigate("CreateMatch", {
-        //     pitchId: route.params.pitchId,
-        //   });
-        // }}
+        onPress={() => {
+          navigation.navigate("CreateMatch", {
+            pitchId: route.params.pitchId,
+          });
+        }}
       >
         Use this Pitch
       </Button>
