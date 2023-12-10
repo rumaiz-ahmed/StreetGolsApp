@@ -29,6 +29,7 @@ const Frame: React.FC<FrameProps> = ({
   centered = true,
 }) => {
   const { colors } = useTheme();
+  
 
   return (
     <View style={{ backgroundColor: colors.background, flex: 1 }}>

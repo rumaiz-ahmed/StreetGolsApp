@@ -10,9 +10,15 @@ interface CreateMatchData {
   additionalNotes: string;
   matchTypes: string;
   gameId: string | null | undefined;
-  playgorundImage: any; 
+  imageURL: any;
   name: any;
   addedGame: number;
+  playAddress: string | null | undefined;
+  city:  string | null | undefined;
+  state:  string | null | undefined;
+  country:  string | null | undefined;
+  zip:  string | null | undefined;
+  mapURL: string | null | undefined;
 }
 
 export const CreateMatchFunction = async ({
@@ -24,9 +30,15 @@ export const CreateMatchFunction = async ({
   matchTypes,
   gameId,
   playgroundId,
-  playgorundImage,
   name,
-  addedGame
+  addedGame,
+  imageURL,
+  city,
+  country,
+  mapURL,
+  playAddress,
+  state,
+  zip,
 }: CreateMatchData) => {
   try {
     const gameDoc = doc(db, "game", `${gameId}`);
@@ -36,21 +48,27 @@ export const CreateMatchFunction = async ({
       date: date,
       startTime: startTime.toString(),
       endTime: endTime.toString(),
-      Intensity: matchTypes,
+      intensity: matchTypes,
       additionalNotes: additionalNotes || "",
       creator: auth.currentUser?.displayName,
       numberOfPlayers: numberOfPlayers,
       creatorUserID: auth.currentUser?.uid,
       players: [],
       playersPushToken: [],
-      playgorundImage: playgorundImage,
+      imageURL: imageURL,
       name: name,
+      city: city,
+      country: country,
+      mapURL: mapURL,
+      playAddress: playAddress,
+      state: state,
+      zip: zip,
     });
 
     const userDoc = doc(db, "users", auth.currentUser?.uid || "");
-      await updateDoc(userDoc, {
-        gamesCreated: addedGame,
-      });
+    await updateDoc(userDoc, {
+      gamesCreated: addedGame,
+    });
   } catch (error) {
     throw error;
   }

@@ -115,10 +115,16 @@ useEffect(()=>{
     const endTime = selectedEndTime?.toISOString() ?? "";
     const numberOfPlayers = numberOfPlayer;
     const additionalNotes = additionalNote;
-    const playgorundImage = playground?.imageURL;
+    const imageURL = playground?.imageURL;
     const name = playground?.name;
     const addedGame = (user?.gamesCreated ?? 0) + 1;
     const gameId = uuidv4();
+    const city = playground?.city;
+    const country = playground?.country;
+    const mapURL = playground?.imageURL;
+    const playAddress = playground?.playAddress;
+    const state = playground?.state;
+    const zip = playground?.zip;
 
     try {
       await CreateMatchFunction({
@@ -130,9 +136,15 @@ useEffect(()=>{
         additionalNotes,
         matchTypes: matchType || "",
         gameId,
-        playgorundImage,
+        imageURL,
         name,
-        addedGame
+        addedGame,
+        city,
+        country,
+        mapURL,
+        playAddress,
+        state,
+        zip
       });
     //   navigation.navigate("Success", { screenFrom: "Created Match" });
     } catch (error) {

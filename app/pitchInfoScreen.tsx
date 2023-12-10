@@ -51,7 +51,7 @@ const PitchInfoScreen = ({ navigation, route }: Props) => {
   return (
     <Frame
       back
-      title="Pitch"
+      title={playground?.name}
       centered={false}
       rightIcon={() => <Entypo name="share" size={24} color="white" />}
       rightIconPress={share}

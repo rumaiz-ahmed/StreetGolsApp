@@ -28,11 +28,15 @@ import HomeScreen from "../app/homeScreen";
 import SettingsScreen from "../app/settingsScreen";
 import Pitches from "../app/pitchesScreen";
 import CreateMatchScreen from "../app/createMatchScreen";
+import GameInfoScreen from "../app/gameInfoScreen";
+import Players from "../app/playersScreen";
+import UserInfoScreen from "../app/userInfoScreen";
 
 // Tab Flow
 
 export type TabStackParamList = {
   Home: undefined;
+  Players: undefined;
 };
 
 const TabStacker = createMaterialBottomTabNavigator<TabStackParamList>();
@@ -50,6 +54,16 @@ const TabStack = () => {
           ),
         }}
       />
+       <TabStacker.Screen
+        name="Players"
+        component={Players}
+        options={{
+          tabBarLabel: 'Players',
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="account-multiple" color={color} size={26} />
+          ),
+        }}
+      />
     </TabStacker.Navigator>
   );
 };
@@ -60,8 +74,11 @@ export type AppStackParamList = {
   Tab: undefined;
   Settings: undefined;
   Pitches: undefined;
+  UserInfo: {userId: any};
   PitchInfo: { pitchId: string };
   CreateMatch: {pitchId: string};
+  GameInfo: {gameId: any};
+
 };
 
 const AppStacker = createNativeStackNavigator<AppStackParamList>();
@@ -102,6 +119,22 @@ const AppStack = () => {
         name="CreateMatch"
         component={CreateMatchScreen}
         initialParams={{pitchId: "1"}}
+        options={{
+          headerShown: false,
+        }}
+        />
+        <AppStacker.Screen
+        name="GameInfo"
+        component={GameInfoScreen}
+        initialParams={{gameId: ""}}
+        options={{
+          headerShown: false,
+        }}
+        />
+        <AppStacker.Screen
+        name="UserInfo"
+        component={UserInfoScreen}
+        initialParams={{userId: ""}}
         options={{
           headerShown: false,
         }}
@@ -169,6 +202,8 @@ const RootNavigation = () => {
       screens: {
         Tab: "tab",
         PitchInfo: "pitchInfo/:pitchId",
+        GameInfo: "gameInfo/:gameId",
+        UserInfo: "userInfo/:userId",
         Settings: "settings",
         Welcome: "welcome",
         SignIn: "signIn",

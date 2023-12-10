@@ -13,6 +13,7 @@ import {
 import form from "../Styles/forms";
 import pitch from "../Styles/pitch";
 import Loading from "../component/loading";
+import { Ionicons } from "@expo/vector-icons";
 
 // functional imports
 import { useEffect, useState } from "react";
@@ -47,7 +48,17 @@ const Pitches: React.FC<Props> = ({ navigation }) => {
   );
 
   return (
-    <Frame title="Pitches" back centered={false}>
+    <Frame
+      title="Pitches"
+      back
+      centered={false}
+      rightIcon={() => (
+        <Ionicons name="ios-add-circle-sharp" size={24} color="white" />
+      )}
+      rightIconPress={() =>
+        Linking.openURL("https://forms.gle/MWsQy3zi6MEaSwY96")
+      }
+    >
       <Searchbar
         style={pitch.searchBar}
         placeholder="Search for a pitch"

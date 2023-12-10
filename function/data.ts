@@ -32,6 +32,8 @@ export interface PlaygroundData {
 
 export interface GameData {
     playgroundId: string;
+    name: string;
+    imageURL: any;
     date: string | null;
     startTime: string;
     endTime: string;
@@ -41,6 +43,13 @@ export interface GameData {
     id: string;
     creatorUserID: string;
     players: string[];
+    intensity: string;
+    playAddress: string;
+    city: string;
+    state: string;
+    country: string;
+    zip: string;
+    mapURL: any;
 }
 
 type Store = {
