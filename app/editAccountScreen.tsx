@@ -262,9 +262,9 @@ const hideDialog = () => setAuthVisible(false);
             setValue={setMatchType}
             list={[
               { label: "Forward", value: "Forward" },
-              { label: "MidFielder", value: "MidFielder" },
+              { label: "Midfielder", value: "Midfielder" },
               { label: "Defender", value: "Defender" },
-              { label: "Goal Keeper", value: "Goal Keeper" },
+              { label: "GoalKeeper", value: "GoalKeeper" },
             ]}
             visible={visible}
             showDropDown={() => setVisible(true)}
@@ -282,6 +282,7 @@ const hideDialog = () => setAuthVisible(false);
 
         <Button
           mode={"contained"}
+
           onPress={() => onSubmit()}
           style={{ marginHorizontal: 10 }}
         >
@@ -290,11 +291,11 @@ const hideDialog = () => setAuthVisible(false);
 
         <Divider style={styles.divider} />
         <View style={styles.dangerZone}>
-          <Headline style={styles.dangerHeadline}>Danger Zone</Headline>
-          <Text style={styles.dangerText}>Proceed with caution!</Text>
+        
           <Button
   style={styles.dangerButton}
   mode="contained"
+  labelStyle={{ color: "white", fontSize: 18 }}
   onPress={showDialog}  // Call showDialog here
 >
   Delete Account
@@ -333,7 +334,6 @@ const styles = StyleSheet.create({
     marginBottom: 16, // Increased margin
   },
   dangerZone: {
-    backgroundColor: "#FF5733",
     padding: 20, // Increased padding
     borderRadius: 5,
   },
@@ -346,6 +346,8 @@ const styles = StyleSheet.create({
     marginBottom: 12, // Increased margin
   },
   dangerButton: {
+    backgroundColor:"#FF5733", 
+    color: "white", 
     marginTop: 12, // Increased margin
   },
   switchContainer: {

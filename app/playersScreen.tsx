@@ -68,7 +68,7 @@ const Players: React.FC<Props> = ({ navigation }) => {
 
   return (
     <Frame
-      title="Players"
+      title="Friends"
       rightIcon={() => (
         <Ionicons name="ios-person-add-sharp" size={24} color="white" />
       )}

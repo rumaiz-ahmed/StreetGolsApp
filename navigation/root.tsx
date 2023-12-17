@@ -79,7 +79,7 @@ const TabStack = () => {
         name="Players"
         component={Players}
         options={{
-          tabBarLabel: "Players",
+          tabBarLabel: "Friends",
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons
               name="account-multiple"
@@ -93,7 +93,7 @@ const TabStack = () => {
         name="Account"
         component={AccountScreen}
         options={{
-          tabBarLabel: "Account",
+          tabBarLabel: "Profile",
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons
               name="account-circle"

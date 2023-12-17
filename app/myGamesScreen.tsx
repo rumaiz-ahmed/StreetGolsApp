@@ -84,7 +84,7 @@ const MyGamesScreen = ({ navigation }: Props) => {
     <View style={styles.container}>
       <Frame title="My Games" centered={false}>
         <View style={styles.fullWidth}>
-          {sortedGames.length > 0 ? (
+        {(createdGames.length > 0 || joinedGames.length > 0) ? (
             <View>
               <Text style={styles.sectionTitle}>Created Games</Text>
               <ScrollView horizontal>
@@ -188,22 +188,9 @@ const MyGamesScreen = ({ navigation }: Props) => {
           ) : (
             <View>
               <Text style={styles.noText}>
-                No games available. Please create one.
+                No Upcoming Games
               </Text>
-              <Button
-                style={{
-                  padding: 5,
-                  marginVertical: 20,
-                  width: "50%",
-                  alignSelf: "center",
-                }}
-                mode="contained"
-                onPress={() => {
-                  navigation.navigate("Pitches");
-                }}
-              >
-                Create One
-              </Button>
+              
             </View>
           )}
         </View>

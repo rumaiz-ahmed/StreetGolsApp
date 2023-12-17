@@ -55,10 +55,10 @@ const SettingsScreen = ({ navigation }: Props) => {
         </Button>
         <Divider style={styles.divider} />
         <View style={styles.dangerZone}>
-          <Headline style={styles.dangerHeadline}>Danger Zone</Headline>
-          <Text style={styles.dangerText}>Proceed with caution!</Text>
+        
           <Button
             style={styles.dangerButton}
+            labelStyle={{ color: "white", fontSize: 18 }}
             mode="contained"
             onPress={() => SignOut()}
           >
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     marginBottom: 16, // Increased margin
   },
   dangerZone: {
-    backgroundColor: "#FF5733",
+ 
     padding: 20, // Increased padding
     borderRadius: 5,
   },
@@ -102,6 +102,7 @@ const styles = StyleSheet.create({
     marginBottom: 12, // Increased margin
   },
   dangerButton: {
+    backgroundColor: "#FF5733",
     marginTop: 12, // Increased margin
   },
 });

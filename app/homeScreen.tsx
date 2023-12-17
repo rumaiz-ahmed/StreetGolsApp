@@ -143,7 +143,7 @@ const HomeScreen = ({ navigation }: Props) => {
 
   return (
     <View style={styles.container}>
-      <Frame title="Nearby Games" centered={false}>
+      <Frame title="Games" centered={false}>
         <View style={styles.fullWidth}>
           {sortedGames.length > 0 ? (
             sortedGames.map((game, index) => (
@@ -207,33 +207,14 @@ const HomeScreen = ({ navigation }: Props) => {
           ) : (
             <View>
               <Text style={styles.noText}>
-                No games available. Please create one.
+                No Games Available
               </Text>
-              <Button
-                style={{
-                  padding: 5,
-                  marginVertical: 20,
-                  width: "50%",
-                  alignSelf: "center",
-                }}
-                mode="contained"
-                onPress={() => {
-                  navigation.navigate("Pitches");
-                }}
-              >
-                Create One
-              </Button>
+              
             </View>
           )}
         </View>
       </Frame>
-      <FAB
-        style={styles.fab}
-        icon="plus"
-        onPress={() => {
-          navigation.navigate("Pitches");
-        }}
-      />
+      
     </View>
   );
 };
