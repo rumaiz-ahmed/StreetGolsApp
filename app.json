@@ -1,34 +1,76 @@
 {
   "expo": {
     "name": "StreetGols",
-    "slug": "StreetGols",
+    "slug": "streetgols",
     "scheme": "streetgols",
-    "version": "1.0.0",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#edff00"
     },
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.StreetGols",
+      "buildNumber": "22",
+      "associatedDomains": [
+        "applinks:streetgols.com"
+      ]
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
+        "backgroundColor": "#edff00"
+      },
+      "googleServicesFile": "./google-services.json",
+      "package": "com.StreetGols",
+      "versionCode": 23,
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "www.streetgols.com",
+              "pathPrefix": "/"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "sentry-expo"
-    ]
+    ],
+    "hooks": {
+      "postPublish": [
+        {
+          "file": "sentry-expo/upload-sourcemaps",
+          "config": {
+            "organization": "streetgols",
+            "project": "street-gols",
+            "authToken": "d7b3e24a7e19b61ed2d2a73d05e497f0a41cf18e6430d30e878b9fe984f7f8ea"
+          }
+        }
+      ]
+    },
+    "extra": {
+      "eas": {
+        "projectId": "67c2210a-f038-4973-8a68-529d5a7fa0d3"
+      }
+    }
   }
 }
