@@ -5,14 +5,13 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBsF7cDFKWbZwNWPVH3WErYkEBiBixDNE8",
-  authDomain: "streetgols-b8f3a.firebaseapp.com",
-  databaseURL: "https://streetgols-b8f3a-default-rtdb.firebaseio.com",
-  projectId: "streetgols-b8f3a",
-  storageBucket: "streetgols-b8f3a.appspot.com",
-  messagingSenderId: "751472284703",
-  appId: "1:751472284703:web:21dca71053a2314158b12a",
-  measurementId: "G-S0WMD11LBX",
+  apiKey: "AIzaSyCvzAp1z481kpyJKVnCULxWEjrHZfsn0Mg",
+  authDomain: "streetgols-9d971.firebaseapp.com",
+  projectId: "streetgols-9d971",
+  storageBucket: "streetgols-9d971.appspot.com",
+  messagingSenderId: "323410323142",
+  appId: "1:323410323142:web:b15fe6bc338a784449d9c7",
+  measurementId: "G-PWFRZ4LQ6H"
 };
 
 // Initialize Firebase

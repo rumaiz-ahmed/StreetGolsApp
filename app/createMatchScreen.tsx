@@ -136,7 +136,7 @@ const CreateMatchScreen = ({ navigation, route }: Props) => {
     const zip = playground?.zip;
     const latitude = playground?.latitude;
     const longitude = playground?.longitude;
-    // const creatorPushToken = user?.pushToken || "";
+    const creatorPushToken = user?.pushToken || "";
 
     try {
       await CreateMatchFunction({
@@ -159,58 +159,58 @@ const CreateMatchScreen = ({ navigation, route }: Props) => {
         zip,
         longitude,
         latitude,
-        // creatorPushToken,
+        creatorPushToken,
       });
-      // try {
-      //   for (let i = 0; i < users.length; i++) {
-      //     const user = users[i];
-      //     if (user.pushToken) {
-      //       const message = {
-      //         to: user.pushToken,
-      //         sound: "default",
-      //         title: "New Game Created",
-      //         body: `A new game has been created. Check it out!`,
-      //         data: { data: "goes here" },
-      //       };
-      //       await fetch("https://exp.host/--/api/v2/push/send", {
-      //         method: "POST",
-      //         headers: {
-      //           Accept: "application/json",
-      //           "Accept-encoding": "gzip, deflate",
-      //           "Content-Type": "application/json",
-      //         },
-      //         body: JSON.stringify(message),
-      //       }).then(() => {
-      //         navigation.navigate("Confirm", { message: "Created Match" });
-      //       });
-      //     }
-      //   }
-      // } catch (error) {
-      //   console.log(error);
-      // }
+      try {
+        for (let i = 0; i < users.length; i++) {
+          const user = users[i];
+          if (user.pushToken) {
+            const message = {
+              to: user.pushToken,
+              sound: "default",
+              title: "New Game Created",
+              body: `A new game has been created. Check it out!`,
+              data: { data: "goes here" },
+            };
+            await fetch("https://exp.host/--/api/v2/push/send", {
+              method: "POST",
+              headers: {
+                Accept: "application/json",
+                "Accept-encoding": "gzip, deflate",
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(message),
+            }).then(() => {
               navigation.navigate("Confirm", { message: "Created Match" });
+            });
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      }
+             
 
     } catch (error) {
       console.error(error);
     }
   };
 
-  // if (!user?.pushToken) {
-  //   return (
-  //     <Frame back>
-  //       <Text style={{ fontSize: 16, textAlign: "center", margin: 10 }}>
-  //         Sorry, you cannot create a game right now. Please ensure you have
-  //         allowed notifications in your settings and try again.
-  //       </Text>
-  //       <Button
-  //         mode="contained"
-  //         onPress={() => navigation.navigate("EditAccount")}
-  //       >
-  //         Settings
-  //       </Button>
-  //     </Frame>
-  //   );
-  // }
+  if (!user?.pushToken) {
+    return (
+      <Frame back>
+        <Text style={{ fontSize: 16, textAlign: "center", margin: 10 }}>
+          Sorry, you cannot create a game right now. Please ensure you have
+          allowed notifications in your settings and try again.
+        </Text>
+        <Button
+          mode="contained"
+          onPress={() => navigation.navigate("EditAccount")}
+        >
+          Settings
+        </Button>
+      </Frame>
+    );
+  }
   return (
     <Frame back title="Create Match" keyboardAvoiding>
       <View style={{ width: "90%", marginBottom: 16 }}>

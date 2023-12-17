@@ -98,6 +98,7 @@ const DetailsScreen: React.FC<Props> = ({ navigation, route }) => {
                 navigation.navigate("UserInfo", {
                   userId: friend.id,
                 })
+                // console.log(friend.id)
               }
               style={styles.card}
             >

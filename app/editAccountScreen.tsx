@@ -38,8 +38,8 @@ import { SignOut } from "../function/signout";
 import { auth, db } from "../firebaseConfig";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
-  // Create a toggle function
-  import { deleteField } from "firebase/firestore";
+// Create a toggle function
+import { deleteField } from "firebase/firestore";
 
 // Navigation imports
 import {
@@ -50,7 +50,11 @@ import {
 import { AppStackParamList } from "../navigation/root";
 import { addFriend, removeFriend } from "../function/friend";
 import { deleteDoc, doc, updateDoc } from "firebase/firestore";
-import { EmailAuthProvider, deleteUser, reauthenticateWithCredential } from "firebase/auth";
+import {
+  EmailAuthProvider,
+  deleteUser,
+  reauthenticateWithCredential,
+} from "firebase/auth";
 import DropDown from "react-native-paper-dropdown";
 
 type EditAccountScreenNavigationProp = NavigationProp<
@@ -62,76 +66,74 @@ type Props = {
   navigation: EditAccountScreenNavigationProp;
 };
 
-// Notifications.setNotificationHandler({
-//   handleNotification: async () => ({
-//     shouldShowAlert: true,
-//     shouldPlaySound: true,
-//     shouldSetBadge: true,
-//   }),
-// });
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
+});
 
 const EditAccountScreen = ({ navigation }: Props) => {
+  async function registerForPushNotificationsAsync() {
+    let token;
+    if (Platform.OS === "android") {
+      await Notifications.setNotificationChannelAsync("default", {
+        name: "default",
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: "#FF231F7C",
+      });
+    }
 
-//   async function registerForPushNotificationsAsync() {
-//     let token;
-//     if (Platform.OS === "android") {
-//         await Notifications.setNotificationChannelAsync("default", {
-//             name: "default",
-//             importance: Notifications.AndroidImportance.MAX,
-//             vibrationPattern: [0, 250, 250, 250],
-//             lightColor: "#FF231F7C",
-//         });
-//     }
+    if (Device.isDevice) {
+      const { status: existingStatus } =
+        await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      if (existingStatus !== "granted") {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      if (finalStatus !== "granted") {
+        console.log("Failed to get push token for push notification!");
+        return "";
+      }
+      token = (
+        await Notifications.getExpoPushTokenAsync({
+          projectId: "67c2210a-f038-4973-8a68-529d5a7fa0d3",
+        })
+      ).data;
+      console.log(token);
 
-//     if (Device.isDevice) {
-//         const { status: existingStatus } = await Notifications.getPermissionsAsync();
-//         let finalStatus = existingStatus;
-//         if (existingStatus !== "granted") {
-//             const { status } = await Notifications.requestPermissionsAsync();
-//             finalStatus = status;
-//         }
-//         if (finalStatus !== "granted") {
-//             console.log("Failed to get push token for push notification!");
-//             return "";
-//         }
-//         token = (
-//             await Notifications.getExpoPushTokenAsync({
-//                 projectId: "67c2210a-f038-4973-8a68-529d5a7fa0d3",
-//             })
-//         ).data;
-//         console.log(token);
+      // Update the user document with the push token
+      const userDoc = doc(db, "users", `${auth.currentUser?.uid}`);
+      await updateDoc(userDoc, {
+        expoPushToken: token,
+      });
+    } else {
+      alert("Must use physical device for Push Notifications");
+    }
 
-//         // Update the user document with the push token
-//         const userDoc = doc(db, "users", `${auth.currentUser?.uid}`);
-//         await updateDoc(userDoc, {
-//             expoPushToken: token,
-//         });
-//     } else {
-//         alert("Must use physical device for Push Notifications");
-//     }
+    return token;
+  }
 
-//     return token;
-// }
+  const [isEnabled, setIsEnabled] = useState(false);
 
-//   const [isEnabled, setIsEnabled] = useState(false);
-
-
-
-//   const toggleSwitch = async () => {
-//     setIsEnabled((previousState) => !previousState);
-//     if (!isEnabled) {
-//         const token = await registerForPushNotificationsAsync();
-//         if (!token) {
-//             alert("Please enable notifications from your phone settings.");
-//         }
-//     } else {
-//         // User wants to disable notifications, remove the push token
-//         const userDoc = doc(db, "users", `${auth.currentUser?.uid}`);
-//         await updateDoc(userDoc, {
-//             expoPushToken: deleteField(),
-//         });
-//     }
-// };
+  const toggleSwitch = async () => {
+    setIsEnabled((previousState) => !previousState);
+    if (!isEnabled) {
+      const token = await registerForPushNotificationsAsync();
+      if (!token) {
+        alert("Please enable notifications from your phone settings.");
+      }
+    } else {
+      // User wants to disable notifications, remove the push token
+      const userDoc = doc(db, "users", `${auth.currentUser?.uid}`);
+      await updateDoc(userDoc, {
+        expoPushToken: deleteField(),
+      });
+    }
+  };
 
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -152,29 +154,24 @@ const EditAccountScreen = ({ navigation }: Props) => {
     }
   };
 
-
-
   const reauthenticate = async () => {
     const user = auth.currentUser;
     if (user) {
       const credential = EmailAuthProvider.credential(email, password);
-  
+
       try {
         await reauthenticateWithCredential(user, credential);
         // User re-authenticated.
-        handleDelete();  // Call the delete function here
+        handleDelete(); // Call the delete function here
       } catch (e) {
         console.error("Error during re-authentication: ", e);
       }
     } else {
       console.error("No user is currently logged in.");
     }
-  
+
     hideDialog();
   };
-  
-  
-  
 
   const [matchType, setMatchType] = useState<string | null>(null);
   const [additionalNote, setAdditionalNote] = useState<string | "">("");
@@ -201,38 +198,38 @@ const EditAccountScreen = ({ navigation }: Props) => {
   };
 
   const [Authvisible, setAuthVisible] = useState(false);
-const [email, setEmail] = useState('');
-const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-const showDialog = () => setAuthVisible(true);
-const hideDialog = () => setAuthVisible(false);
+  const showDialog = () => setAuthVisible(true);
+  const hideDialog = () => setAuthVisible(false);
 
   return (
     <Frame back centered={false}>
       <View style={styles.container}>
-      <Portal>
-  <Dialog visible={Authvisible} onDismiss={hideDialog}>
-    <Dialog.Title>Re-authenticate</Dialog.Title>
-    <Dialog.Content>
-      <TextInput
-        label="Email"
-        value={email}
-        onChangeText={text => setEmail(text)}
-      />
-      <TextInput
-        label="Password"
-        value={password}
-        onChangeText={text => setPassword(text)}
-        secureTextEntry
-      />
-    </Dialog.Content>
-    <Dialog.Actions>
-      <Button onPress={hideDialog}>Cancel</Button>
-      <Button onPress={reauthenticate}>Ok</Button>
-    </Dialog.Actions>
-  </Dialog>
-</Portal>
-        {/* <View style={styles.switchContainer}>
+        <Portal>
+          <Dialog visible={Authvisible} onDismiss={hideDialog}>
+            <Dialog.Title>Re-authenticate</Dialog.Title>
+            <Dialog.Content>
+              <TextInput
+                label="Email"
+                value={email}
+                onChangeText={(text) => setEmail(text)}
+              />
+              <TextInput
+                label="Password"
+                value={password}
+                onChangeText={(text) => setPassword(text)}
+                secureTextEntry
+              />
+            </Dialog.Content>
+            <Dialog.Actions>
+              <Button onPress={hideDialog}>Cancel</Button>
+              <Button onPress={reauthenticate}>Ok</Button>
+            </Dialog.Actions>
+          </Dialog>
+        </Portal>
+        <View style={styles.switchContainer}>
           <Text style={styles.switchLabel}>Enable Push Notifications</Text>
           <Switch
             trackColor={{ false: "#767577", true: "#81b0ff" }}
@@ -241,8 +238,8 @@ const hideDialog = () => setAuthVisible(false);
             onValueChange={toggleSwitch}
             value={isEnabled}
           />
-        </View> */}
-        <Divider  style={styles.divider} />
+        </View>
+        <Divider style={styles.divider} />
         <View
           style={{
             width: "90%",
@@ -282,7 +279,6 @@ const hideDialog = () => setAuthVisible(false);
 
         <Button
           mode={"contained"}
-
           onPress={() => onSubmit()}
           style={{ marginHorizontal: 10 }}
         >
@@ -291,15 +287,14 @@ const hideDialog = () => setAuthVisible(false);
 
         <Divider style={styles.divider} />
         <View style={styles.dangerZone}>
-        
           <Button
-  style={styles.dangerButton}
-  mode="contained"
-  labelStyle={{ color: "white", fontSize: 18 }}
-  onPress={showDialog}  // Call showDialog here
->
-  Delete Account
-</Button>
+            style={styles.dangerButton}
+            mode="contained"
+            labelStyle={{ color: "white", fontSize: 18 }}
+            onPress={showDialog} // Call showDialog here
+          >
+            Delete Account
+          </Button>
         </View>
       </View>
       <Snackbar
@@ -346,8 +341,8 @@ const styles = StyleSheet.create({
     marginBottom: 12, // Increased margin
   },
   dangerButton: {
-    backgroundColor:"#FF5733", 
-    color: "white", 
+    backgroundColor: "#FF5733",
+    color: "white",
     marginTop: 12, // Increased margin
   },
   switchContainer: {

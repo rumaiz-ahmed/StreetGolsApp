@@ -30,9 +30,10 @@ import { SignOut } from "../function/signout";
 import { auth } from "../firebaseConfig";
 
 // Navigation imports
-import { NavigationProp, RouteProp } from "@react-navigation/native";
+import { NavigationProp, RouteProp, useFocusEffect } from "@react-navigation/native";
 import { AppStackParamList } from "../navigation/root";
 import { addFriend, removeFriend } from "../function/friend";
+import React from "react";
 
 type UserInfoScreenNavigationProp = NavigationProp<
   AppStackParamList,
@@ -45,20 +46,17 @@ type Props = {
 };
 
 const UserInfoScreen = ({ navigation, route }: Props) => {
-  const { user, subscribeUser } = useStore();
+  const { user, subscribeUser, users, fetchUsers } = useStore();
   const { userId } = route.params;
   const currentUserId = auth.currentUser?.uid;
 
-  // Check if the current user is a friend
-  const initialIsFriend = currentUserId
-    ? user?.friends.includes(currentUserId)
-    : false;
-
-  const [isFriend, setIsFriend] = useState(initialIsFriend); // Add this line
-
-  useEffect(() => {
-    subscribeUser(userId);
-  }, [subscribeUser]);
+ 
+  useFocusEffect(
+    React.useCallback(() => {
+      subscribeUser(userId);
+      fetchUsers()
+    }, [subscribeUser,fetchUsers])
+  );
 
   const share = async () => {
     try {
@@ -71,18 +69,53 @@ const UserInfoScreen = ({ navigation, route }: Props) => {
     }
   };
 
-  const handleFriendButtonPress = async () => {
-    setIsFriend(!isFriend);
+  // Find the current user and the user whose profile is being viewed
+  const currentUser = users.find((user) => user.id === currentUserId);
+  const profileUser = users.find((user) => user.id === userId);
 
-    if (!isFriend) {
-      // Add the current user's ID to the user's friends list
-      await addFriend(currentUserId, userId);
+  // Check if the profile user is a friend of the current user
+  const isFriend = currentUser?.friends.includes(userId);
+
+  const handleFriendButtonPress = async () => {
+    if (isFriend) {
+      // If the user is already a friend, remove them
+      try {
+        await removeFriend(currentUserId, userId);
+        navigation.navigate("Confirm", { message: "Unfriended" });
+
+      } catch (error) {
+        alert(error);
+      }
     } else {
-      // Remove the current user's ID from the user's friends list
-      await removeFriend(currentUserId, userId);
+      // If the user is not a friend, add them
+      try {
+        await addFriend(currentUserId, userId);
+        const message = {
+          to: user?.pushToken,
+          sound: "default",
+          title: "New Friend",
+          body: `${currentUser?.displayName} has added you as a friend.`,
+          data: { data: "goes here" },
+        };
+
+        await fetch("https://exp.host/--/api/v2/push/send", {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Accept-encoding": "gzip, deflate",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(message),
+        }).then(()=>{
+
+          navigation.navigate("Confirm", { message: "Added Friend" });
+        })
+      } catch (error) {
+        alert( error);
+      }
     }
   };
-
+  
   return (
     <Frame
       back
@@ -103,8 +136,8 @@ const UserInfoScreen = ({ navigation, route }: Props) => {
         </Title>
         <Text style={styles.email}>{user?.email}</Text>
         <Button onPress={handleFriendButtonPress}>
-          {isFriend ? "Unfriend" : "Add Friend"}
-        </Button>
+      {isFriend ? "Unfriend" : "Add Friend"}
+    </Button>
       </View>
 
       <Divider />
@@ -114,7 +147,7 @@ const UserInfoScreen = ({ navigation, route }: Props) => {
           onPress={() => {
             navigation.navigate("Details", {
               message: "Games Created",
-              uid: auth.currentUser?.uid,
+              uid: userId,
             });
           }}
         >
@@ -127,7 +160,7 @@ const UserInfoScreen = ({ navigation, route }: Props) => {
           onPress={() => {
             navigation.navigate("Details", {
               message: "Games Played",
-              uid: auth.currentUser?.uid,
+              uid:userId,
             });
           }}
         >
@@ -140,7 +173,7 @@ const UserInfoScreen = ({ navigation, route }: Props) => {
           onPress={() => {
             navigation.navigate("Details", {
               message: "Friends",
-              uid: auth.currentUser?.uid,
+              uid: userId,
             });
           }}
         >
@@ -235,3 +268,6 @@ const styles = StyleSheet.create({
 });
 
 export default UserInfoScreen;
+
+
+

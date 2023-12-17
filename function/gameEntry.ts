@@ -1,19 +1,20 @@
 import { db, auth } from "../firebaseConfig";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc, arrayUnion,arrayRemove } from "firebase/firestore";
 
 export const handleJoin = async ({
   gamePlayers,
   gameId,
-
+  pushToken,
 }: {
   gamePlayers: string[];
   gameId: string;
-
+  pushToken: any
 }) => {
   try {
     const gameDoc = doc(db, "game", gameId);
     await updateDoc(gameDoc, {
       players: [...gamePlayers, auth.currentUser?.uid],
+      playersPushToken: arrayUnion(pushToken)
     });
 
   } catch (error) {
@@ -24,11 +25,11 @@ export const handleJoin = async ({
 export const handleUnjoin = async ({
   gamePlayers,
   gameId,
-
+  pushToken
 }: {
   gamePlayers: string[];
   gameId: string;
-
+pushToken: any;
 }) => {
   try {
     const gameDoc = doc(db, "game", gameId);
@@ -37,6 +38,7 @@ export const handleUnjoin = async ({
       players: [
         ...gamePlayers.filter((player) => player !== auth.currentUser?.uid),
       ],
+      playersPushToken: arrayRemove(pushToken)
     });
    
   } catch (error) {

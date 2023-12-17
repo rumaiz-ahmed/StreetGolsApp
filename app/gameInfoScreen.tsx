@@ -85,13 +85,42 @@ const GameInfoScreen = ({ navigation, route }: Props) => {
   const minusGame = (user?.gamesCreated || 0) - 1;
   const minusPlayedGame = (user?.gamesPlayed || 0) - 1;
   const addedPlayedGame = (user?.gamesPlayed || 0) + 1;
+  const pushToken = user?.pushToken;
 
   if (isUserCreator) {
     buttonLabel = "Cancel";
-    buttonAction = () => deleteGame({ gameId, minusGame }).then(()=>{
-      navigation.navigate("Confirm", { message: "Game Deleted" });
+    buttonAction = async () => {
+      const playerPushTokens =
+        game?.players.map((playerId) => {
+          const player = users.find((user) => user.id === playerId);
+          return player?.pushToken;
+        }) || [];
 
-    })
+      for (const pushToken of playerPushTokens) {
+        if (pushToken) {
+          const message = {
+            to: pushToken,
+            sound: "default",
+            title: "Game Cancelled",
+            body: `The game on ${game?.date} at ${game?.name} has been cancelled.`,
+            data: { data: "goes here" },
+          };
+
+          await fetch("https://exp.host/--/api/v2/push/send", {
+            method: "POST",
+            headers: {
+              Accept: "application/json",
+              "Accept-encoding": "gzip, deflate",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(message),
+          });
+        }
+      }
+
+      await deleteGame({ gameId, minusGame });
+      navigation.navigate("Confirm", { message: "Game Deleted" });
+    };
   } else if (isUserInGame) {
     buttonLabel = "Unjoin";
     buttonAction = async () => {
@@ -99,8 +128,29 @@ const GameInfoScreen = ({ navigation, route }: Props) => {
       await updateDoc(userDoc, {
         gamesPlayed: minusPlayedGame,
       });
-      await handleUnjoin({ gamePlayers, gameId });
-        navigation.navigate("Confirm", { message: "Unjoined Game" });
+      await handleUnjoin({ gamePlayers, gameId, pushToken });
+      try {
+        const message = {
+          to: game?.creatorPushToken,
+          sound: "default",
+          title: "Player Left",
+          body: `${user?.displayName} has left the game!`,
+          data: { data: "goes here" },
+        };
+        await fetch("https://exp.host/--/api/v2/push/send", {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Accept-encoding": "gzip, deflate",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(message),
+        }).then(() => {
+          navigation.navigate("Confirm", { message: "Unjoined Game" });
+        });
+      } catch (error) {
+        console.log(error);
+      }
     };
   } else {
     buttonLabel = "Join";
@@ -109,8 +159,29 @@ const GameInfoScreen = ({ navigation, route }: Props) => {
       await updateDoc(userDoc, {
         gamesPlayed: addedPlayedGame,
       });
-      await handleJoin({ gamePlayers, gameId });
-        navigation.navigate("Confirm", { message: "Joined Game" });
+      await handleJoin({ gamePlayers, gameId, pushToken });
+      try {
+        const message = {
+          to: game?.creatorPushToken,
+          sound: "default",
+          title: "Player Joined",
+          body: `${user?.displayName} has joined the game!`,
+          data: { data: "goes here" },
+        };
+        await fetch("https://exp.host/--/api/v2/push/send", {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Accept-encoding": "gzip, deflate",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(message),
+        }).then(() => {
+          navigation.navigate("Confirm", { message: "Joined Game" });
+        });
+      } catch (error) {
+        console.log(error);
+      }
     };
   }
 
@@ -209,10 +280,11 @@ const GameInfoScreen = ({ navigation, route }: Props) => {
                 const player = users.find((user) => user.id === playerId);
                 return (
                   <View key={index} style={{ marginVertical: 10 }}>
-                    <TouchableOpacity style={styles.playerContainer}
-                    onPress={() =>
-                      navigation.navigate("UserInfo", { userId: player?.id })
-                    }
+                    <TouchableOpacity
+                      style={styles.playerContainer}
+                      onPress={() =>
+                        navigation.navigate("UserInfo", { userId: player?.id })
+                      }
                     >
                       <FontAwesome
                         name="user"
@@ -230,6 +302,7 @@ const GameInfoScreen = ({ navigation, route }: Props) => {
               })}
           </Card.Content>
         </Card>
+        <View style={{ marginBottom: "20%" }}></View>
       </Frame>
     </>
   );
