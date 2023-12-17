@@ -87,8 +87,11 @@ const GameInfoScreen = ({ navigation, route }: Props) => {
   const addedPlayedGame = (user?.gamesPlayed || 0) + 1;
 
   if (isUserCreator) {
-    buttonLabel = "Delete";
-    buttonAction = () => deleteGame({ gameId, minusGame });
+    buttonLabel = "Cancel";
+    buttonAction = () => deleteGame({ gameId, minusGame }).then(()=>{
+      navigation.navigate("Confirm", { message: "Game Deleted" });
+
+    })
   } else if (isUserInGame) {
     buttonLabel = "Unjoin";
     buttonAction = async () => {
@@ -97,7 +100,7 @@ const GameInfoScreen = ({ navigation, route }: Props) => {
         gamesPlayed: minusPlayedGame,
       });
       await handleUnjoin({ gamePlayers, gameId });
-      //   navigation.navigate("Success", { screenFrom: "Unjoined Game" });
+        navigation.navigate("Confirm", { message: "Unjoined Game" });
     };
   } else {
     buttonLabel = "Join";
@@ -107,7 +110,7 @@ const GameInfoScreen = ({ navigation, route }: Props) => {
         gamesPlayed: addedPlayedGame,
       });
       await handleJoin({ gamePlayers, gameId });
-      //   navigation.navigate("Success", { screenFrom: "Joined Game" });
+        navigation.navigate("Confirm", { message: "Joined Game" });
     };
   }
 

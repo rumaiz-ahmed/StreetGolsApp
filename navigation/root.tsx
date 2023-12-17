@@ -31,12 +31,19 @@ import CreateMatchScreen from "../app/createMatchScreen";
 import GameInfoScreen from "../app/gameInfoScreen";
 import Players from "../app/playersScreen";
 import UserInfoScreen from "../app/userInfoScreen";
+import AccountScreen from "../app/accountScreen";
+import EditAccountScreen from "../app/editAccountScreen";
+import ConfirmScreen from "../app/confirmScreen";
+import MyGamesScreen from "../app/myGamesScreen";
+import DetailsScreen from "../app/deatilsScreen";
 
 // Tab Flow
 
 export type TabStackParamList = {
   Home: undefined;
   Players: undefined;
+  Account: undefined;
+  MyGames: undefined;
 };
 
 const TabStacker = createMaterialBottomTabNavigator<TabStackParamList>();
@@ -54,13 +61,45 @@ const TabStack = () => {
           ),
         }}
       />
-       <TabStacker.Screen
+      <TabStacker.Screen
+        name="MyGames"
+        component={MyGamesScreen}
+        options={{
+          tabBarLabel: "My Games",
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons
+              name="soccer-field"
+              color={color}
+              size={26}
+            />
+          ),
+        }}
+      />
+      <TabStacker.Screen
         name="Players"
         component={Players}
         options={{
-          tabBarLabel: 'Players',
+          tabBarLabel: "Players",
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="account-multiple" color={color} size={26} />
+            <MaterialCommunityIcons
+              name="account-multiple"
+              color={color}
+              size={26}
+            />
+          ),
+        }}
+      />
+      <TabStacker.Screen
+        name="Account"
+        component={AccountScreen}
+        options={{
+          tabBarLabel: "Account",
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons
+              name="account-circle"
+              color={color}
+              size={26}
+            />
           ),
         }}
       />
@@ -74,11 +113,13 @@ export type AppStackParamList = {
   Tab: undefined;
   Settings: undefined;
   Pitches: undefined;
-  UserInfo: {userId: any};
+  EditAccount: undefined;
+  Details: { message: string, uid: any };
+  Confirm: { message: string };
+  UserInfo: { userId: any };
   PitchInfo: { pitchId: string };
-  CreateMatch: {pitchId: string};
-  GameInfo: {gameId: any};
-
+  CreateMatch: { pitchId: string };
+  GameInfo: { gameId: any };
 };
 
 const AppStacker = createNativeStackNavigator<AppStackParamList>();
@@ -118,27 +159,50 @@ const AppStack = () => {
       <AppStacker.Screen
         name="CreateMatch"
         component={CreateMatchScreen}
-        initialParams={{pitchId: "1"}}
+        initialParams={{ pitchId: "1" }}
         options={{
           headerShown: false,
         }}
-        />
-        <AppStacker.Screen
+      />
+      <AppStacker.Screen
         name="GameInfo"
         component={GameInfoScreen}
-        initialParams={{gameId: ""}}
+        initialParams={{ gameId: "" }}
         options={{
           headerShown: false,
         }}
-        />
-        <AppStacker.Screen
+      />
+      <AppStacker.Screen
         name="UserInfo"
         component={UserInfoScreen}
-        initialParams={{userId: ""}}
+        initialParams={{ userId: "" }}
         options={{
           headerShown: false,
         }}
-        />
+      />
+      <AppStacker.Screen
+        name="EditAccount"
+        component={EditAccountScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <AppStacker.Screen
+        name="Confirm"
+        component={ConfirmScreen}
+        initialParams={{ message: "" }}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <AppStacker.Screen
+        name="Details"
+        component={DetailsScreen}
+        initialParams={{ message: "", uid: "" }}
+        options={{
+          headerShown: false,
+        }}
+      />
     </AppStacker.Navigator>
   );
 };

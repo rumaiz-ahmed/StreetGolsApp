@@ -6,12 +6,14 @@ interface SignUpData {
     displayName: string;
     email: string;
     password: string;
+    pushToken: any;
 }
 
 export const SignUpFunction = async ({
     displayName,
     email,
     password,
+    pushToken
 }: SignUpData) => {
     try {
         const userCredential = await createUserWithEmailAndPassword(
@@ -38,6 +40,7 @@ export const SignUpFunction = async ({
             bio: "",
             position: "",
             friends: [],
+            pushToken: pushToken,
         });
     } catch (error) {
         throw error;

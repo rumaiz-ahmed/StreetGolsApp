@@ -1,7 +1,15 @@
 // ui imports
 import Frame from "../component/view";
 import { StyleSheet, Image, View, Share, Linking } from "react-native";
-import { Button, Card, Divider, FAB, Snackbar, Text, TextInput } from "react-native-paper";
+import {
+  Button,
+  Card,
+  Divider,
+  FAB,
+  Snackbar,
+  Text,
+  TextInput,
+} from "react-native-paper";
 import DropDown from "react-native-paper-dropdown";
 import DateTimePicker from "react-native-modal-datetime-picker";
 
@@ -11,13 +19,12 @@ import { useStore } from "../function/data";
 import { auth } from "../firebaseConfig";
 import moment from "moment";
 import { CreateMatchFunction } from "../function/createMatch";
-import { v4 as uuidv4 } from 'uuid';
-import 'react-native-get-random-values';
+import { v4 as uuidv4 } from "uuid";
+import "react-native-get-random-values";
 
 // Navigation imports
 import { NavigationProp, RouteProp } from "@react-navigation/native";
 import { AppStackParamList } from "../navigation/root";
-
 
 type CreateMatchScreenNavigationProp = NavigationProp<
   AppStackParamList,
@@ -32,15 +39,20 @@ type Props = {
 const CreateMatchScreen = ({ navigation, route }: Props) => {
   const { pitchId } = route.params;
 
-const {user, subscribeUser, playground, subscribePlayground} = useStore();
+  const {
+    user,
+    subscribeUser,
+    playground,
+    subscribePlayground,
+    users,
+    fetchUsers,
+  } = useStore();
 
-useEffect(()=>{
-    subscribeUser(`${auth.currentUser?.uid}`)
-    subscribePlayground(pitchId)
-
-},[subscribeUser, subscribePlayground])
-
-
+  useEffect(() => {
+    subscribeUser(`${auth.currentUser?.uid}`);
+    subscribePlayground(pitchId);
+    fetchUsers();
+  }, [subscribeUser, subscribePlayground, fetchUsers]);
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedStartTime, setSelectedStartTime] = useState<Date | null>(null);
@@ -56,9 +68,6 @@ useEffect(()=>{
     useState<boolean>(false);
   const [isEndTimePickerVisible, setEndTimePickerVisible] =
     useState<boolean>(false);
-
-
-
 
   const handleDateChange = (selectedDate: Date) => {
     setSelectedDate(selectedDate);
@@ -125,6 +134,9 @@ useEffect(()=>{
     const playAddress = playground?.playAddress;
     const state = playground?.state;
     const zip = playground?.zip;
+    const latitude = playground?.latitude;
+    const longitude = playground?.longitude;
+    const creatorPushToken = user?.pushToken || "";
 
     try {
       await CreateMatchFunction({
@@ -144,144 +156,181 @@ useEffect(()=>{
         mapURL,
         playAddress,
         state,
-        zip
+        zip,
+        longitude,
+        latitude,
+        creatorPushToken,
       });
-    //   navigation.navigate("Success", { screenFrom: "Created Match" });
+      try {
+        for (let i = 0; i < users.length; i++) {
+          const user = users[i];
+          if (user.pushToken) {
+            const message = {
+              to: user.pushToken,
+              sound: "default",
+              title: "New Game Created",
+              body: `A new game has been created. Check it out!`,
+              data: { data: "goes here" },
+            };
+            await fetch("https://exp.host/--/api/v2/push/send", {
+              method: "POST",
+              headers: {
+                Accept: "application/json",
+                "Accept-encoding": "gzip, deflate",
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(message),
+            }).then(() => {
+              navigation.navigate("Confirm", { message: "Created Match" });
+            });
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      }
     } catch (error) {
       console.error(error);
     }
   };
-    return(
-        <Frame back title="Create Match" keyboardAvoiding>
 
-          <View  style={{ width: "90%", marginBottom: 16 }}>
-            <TextInput
-            
-              label="Date"
-              value={
-                selectedDate ? moment(selectedDate).format("MMMM Do YYYY") : ""
-              }
-              editable={false}
-              right={
-                <TextInput.Icon icon="calendar" onPress={showDatePicker} />
-              }
-            />
-            <DateTimePicker
-              isVisible={isDatePickerVisible}
-              mode="date"
-              minimumDate={new Date}
-              onConfirm={(date) => {
-                handleDateChange(date);
-                hideDatePicker(); // Hide the date picker after selecting a date
-              }}
-              onCancel={hideDatePicker} // Also hide the date picker on cancel
-            />
-          </View>
+  if (!user?.pushToken) {
+    return (
+      <Frame back>
+        <Text style={{ fontSize: 16, textAlign: "center", margin: 10 }}>
+          Sorry, you cannot create a game right now. Please ensure you have
+          allowed notifications in your settings and try again.
+        </Text>
+        <Button
+          mode="contained"
+          onPress={() => navigation.navigate("EditAccount")}
+        >
+          Settings
+        </Button>
+      </Frame>
+    );
+  }
+  return (
+    <Frame back title="Create Match" keyboardAvoiding>
+      <View style={{ width: "90%", marginBottom: 16 }}>
+        <TextInput
+          label="Date"
+          value={
+            selectedDate ? moment(selectedDate).format("MMMM Do YYYY") : ""
+          }
+          editable={false}
+          right={<TextInput.Icon icon="calendar" onPress={showDatePicker} />}
+        />
+        <DateTimePicker
+          isVisible={isDatePickerVisible}
+          mode="date"
+          minimumDate={new Date()}
+          onConfirm={(date) => {
+            handleDateChange(date);
+            hideDatePicker(); // Hide the date picker after selecting a date
+          }}
+          onCancel={hideDatePicker} // Also hide the date picker on cancel
+        />
+      </View>
 
-          <View style={{ width: "90%", marginBottom: 16 }}>
-            <TextInput
-              label="Start Time"
-              value={
-                selectedStartTime
-                  ? moment(selectedStartTime).format("h:mm A")
-                  : ""
-              }
-              editable={false}
-              right={
-                <TextInput.Icon
-                  icon="clock-outline"
-                  onPress={showStartTimePicker}
-                />
-              }
+      <View style={{ width: "90%", marginBottom: 16 }}>
+        <TextInput
+          label="Start Time"
+          value={
+            selectedStartTime ? moment(selectedStartTime).format("h:mm A") : ""
+          }
+          editable={false}
+          right={
+            <TextInput.Icon
+              icon="clock-outline"
+              onPress={showStartTimePicker}
             />
-            <DateTimePicker
-              isVisible={isStartTimePickerVisible}
-              mode="time"
-              is24Hour={false}
-              onConfirm={(time) => {
-                handleStartTimeChange(time);
-                hideStartTimePicker(); // Hide the start time picker after selecting a time
-              }}
-              onCancel={hideStartTimePicker} // Also hide the start time picker on cancel
-            />
-          </View>
+          }
+        />
+        <DateTimePicker
+          isVisible={isStartTimePickerVisible}
+          mode="time"
+          is24Hour={false}
+          onConfirm={(time) => {
+            handleStartTimeChange(time);
+            hideStartTimePicker(); // Hide the start time picker after selecting a time
+          }}
+          onCancel={hideStartTimePicker} // Also hide the start time picker on cancel
+        />
+      </View>
 
-          <View style={{ width: "90%", marginBottom: 16 }}>
-            <TextInput
-              label="End Time"
-              value={
-                selectedEndTime ? moment(selectedEndTime).format("h:mm A") : ""
-              }
-              editable={false}
-              right={
-                <TextInput.Icon
-                  icon="clock-outline"
-                  onPress={showEndTimePicker}
-                />
-              }
-            />
-            <DateTimePicker
-              isVisible={isEndTimePickerVisible}
-              mode="time"
-              is24Hour={false}
-              onConfirm={(time) => {
-                handleEndTimeChange(time);
-                hideEndTimePicker(); // Hide the end time picker after selecting a time
-              }}
-              onCancel={hideEndTimePicker} // Also hide the end time picker on cancel
-            />
-          </View>
+      <View style={{ width: "90%", marginBottom: 16 }}>
+        <TextInput
+          label="End Time"
+          value={
+            selectedEndTime ? moment(selectedEndTime).format("h:mm A") : ""
+          }
+          editable={false}
+          right={
+            <TextInput.Icon icon="clock-outline" onPress={showEndTimePicker} />
+          }
+        />
+        <DateTimePicker
+          isVisible={isEndTimePickerVisible}
+          mode="time"
+          is24Hour={false}
+          onConfirm={(time) => {
+            handleEndTimeChange(time);
+            hideEndTimePicker(); // Hide the end time picker after selecting a time
+          }}
+          onCancel={hideEndTimePicker} // Also hide the end time picker on cancel
+        />
+      </View>
 
-          <TextInput
-            style={{ width: "90%", alignSelf: "center", marginBottom: 16 }}
-            placeholder="Number Of Players"
-            value={numberOfPlayer ? numberOfPlayer.toString() : ""}
-            onChangeText={(text) => setNumberOfPlayer(parseInt(text))}
-            keyboardType="numeric"
-          />
+      <TextInput
+        style={{ width: "90%", alignSelf: "center", marginBottom: 16 }}
+        placeholder="Number Of Players"
+        value={numberOfPlayer ? numberOfPlayer.toString() : ""}
+        onChangeText={(text) => setNumberOfPlayer(parseInt(text))}
+        keyboardType="numeric"
+      />
 
-          <View
-            style={{
-              width: "90%",
-              justifyContent: "center",
-              alignSelf: "center",
-              marginBottom: 16,
-            }}
-          >
-            <DropDown
-              dropDownStyle={{ width: "90%" }}
-              label="Match Type"
-              value={matchType}
-              activeColor="yellow"
-              dropDownItemTextStyle={{
-                color: "white",
-              }}
-              setValue={setMatchType}
-              list={[
-                { label: "Recreational", value: "Recreational" },
-                { label: "Competitive", value: "Competitive" },
-              ]}
-              visible={visible}
-              showDropDown={() => setVisible(true)}
-              onDismiss={() => setVisible(false)}
-            />
-          </View>
+      <View
+        style={{
+          width: "90%",
+          justifyContent: "center",
+          alignSelf: "center",
+          marginBottom: 16,
+        }}
+      >
+        <DropDown
+          dropDownStyle={{ width: "90%" }}
+          label="Match Type"
+          value={matchType}
+          activeColor="yellow"
+          dropDownItemTextStyle={{
+            color: "white",
+          }}
+          setValue={setMatchType}
+          list={[
+            { label: "Recreational", value: "Recreational" },
+            { label: "Competitive", value: "Competitive" },
+          ]}
+          visible={visible}
+          showDropDown={() => setVisible(true)}
+          onDismiss={() => setVisible(false)}
+        />
+      </View>
 
-          <TextInput
-            style={{ width: "90%", alignSelf: "center", marginBottom: 16 }}
-            placeholder="Additional Notes"
-            value={additionalNote}
-            onChangeText={(text) => setAdditionalNote(text)}
-            inputMode="text"
-          />
+      <TextInput
+        style={{ width: "90%", alignSelf: "center", marginBottom: 16 }}
+        placeholder="Additional Notes"
+        value={additionalNote}
+        onChangeText={(text) => setAdditionalNote(text)}
+        inputMode="text"
+      />
 
-          <Button
-            onPress={() => handleCreateMatch()}
-            mode="contained"
-            style={{ width: "90%", alignSelf: "center", marginBottom: 16 }}
-          >
-            Create Match
-          </Button>
+      <Button
+        onPress={() => handleCreateMatch()}
+        mode="contained"
+        style={{ width: "90%", alignSelf: "center", marginBottom: 16 }}
+      >
+        Create Match
+      </Button>
 
       <Snackbar
         visible={snackbarVisible}
@@ -293,14 +342,10 @@ useEffect(()=>{
       >
         {snackbarMessage}
       </Snackbar>
-        </Frame>
-    )
+    </Frame>
+  );
+};
 
-}
-
-
-const styles = StyleSheet.create({
-    
-  });
+const styles = StyleSheet.create({});
 
 export default CreateMatchScreen;

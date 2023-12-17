@@ -14,6 +14,7 @@ export interface UserData {
     points: number;
     position: string;
     friends: Array<String>;
+    pushToken: string;
 }
 
 export interface PlaygroundData {
@@ -28,6 +29,8 @@ export interface PlaygroundData {
     openTime: string;
     mapURL: string;
     imageURL: string;
+    longitude: string;
+    latitude: string;
 }
 
 export interface GameData {
@@ -50,6 +53,10 @@ export interface GameData {
     country: string;
     zip: string;
     mapURL: any;
+    longitude: string;
+    latitude: string;
+    creatorPushToken: string;
+    playersPushToken: any;
 }
 
 type Store = {

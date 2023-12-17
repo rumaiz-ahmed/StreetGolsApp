@@ -1,13 +1,15 @@
 // ui imports
 import Frame from "../component/view";
-import { View } from "react-native";
+import { View, Platform } from "react-native";
 import { Button, Snackbar, Text, TextInput } from "react-native-paper";
 import form from "../Styles/forms";
 
 // functional imports
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { SignUpFunction } from "../function/signup";
+import * as Device from 'expo-device';
+import * as Notifications from 'expo-notifications';
 
 // Navigation imports
 import { NavigationProp } from "@react-navigation/native";
@@ -19,6 +21,14 @@ type Props = {
   navigation: SignUpScreenNavigationProp;
 };
 
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
+});
+
 type FormValues = {
   firstName: string;
   lastName: string;
@@ -28,6 +38,42 @@ type FormValues = {
 };
 
 const SignUpScreen = ({ navigation }: Props) => {
+  const [expoPushToken, setExpoPushToken] = useState<string | "">();
+  async function registerForPushNotificationsAsync() {
+    let token;
+    if (Platform.OS === 'android') {
+      await Notifications.setNotificationChannelAsync('default', {
+        name: 'default',
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#FF231F7C',
+      });
+    }
+  
+    if (Device.isDevice) {
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      if (finalStatus !== 'granted') {
+        alert('Failed to get push token for push notification!');
+        return "";
+      }
+      token = (await Notifications.getExpoPushTokenAsync({ projectId: '67c2210a-f038-4973-8a68-529d5a7fa0d3' })).data;
+      console.log(token);
+    } else {
+      alert('Must use physical device for Push Notifications');
+    }
+  
+    return token;
+  }
+
+  useEffect(()=>{
+    registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
+  },[])
+
   const {
     control,
     handleSubmit,
@@ -60,6 +106,8 @@ const SignUpScreen = ({ navigation }: Props) => {
     try {
       if (data.password !== data.confirmPassword) {
         setPasswordMatchError(true);
+        setSnackbarMessage("Passwords do not match.");
+        setVisible(true);
         return;
       }
 
@@ -68,6 +116,7 @@ const SignUpScreen = ({ navigation }: Props) => {
         email: data.email,
         password: data.password,
         displayName,
+        pushToken: expoPushToken,
       }).catch((error) => {
         const message = getErrorMessage(error.code);
         setSnackbarMessage(message);

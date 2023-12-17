@@ -19,6 +19,10 @@ interface CreateMatchData {
   country:  string | null | undefined;
   zip:  string | null | undefined;
   mapURL: string | null | undefined;
+  longitude: string | null | undefined ;
+    latitude: string | null | undefined;
+    creatorPushToken: string;
+
 }
 
 export const CreateMatchFunction = async ({
@@ -39,6 +43,10 @@ export const CreateMatchFunction = async ({
   playAddress,
   state,
   zip,
+  latitude,
+  longitude,
+  creatorPushToken,
+
 }: CreateMatchData) => {
   try {
     const gameDoc = doc(db, "game", `${gameId}`);
@@ -54,7 +62,6 @@ export const CreateMatchFunction = async ({
       numberOfPlayers: numberOfPlayers,
       creatorUserID: auth.currentUser?.uid,
       players: [],
-      playersPushToken: [],
       imageURL: imageURL,
       name: name,
       city: city,
@@ -63,6 +70,10 @@ export const CreateMatchFunction = async ({
       playAddress: playAddress,
       state: state,
       zip: zip,
+      longitude: longitude,
+      latitude: latitude,
+      creatorPushToken: creatorPushToken,
+      playersPushToken: [],
     });
 
     const userDoc = doc(db, "users", auth.currentUser?.uid || "");
