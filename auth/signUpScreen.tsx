@@ -21,13 +21,13 @@ type Props = {
   navigation: SignUpScreenNavigationProp;
 };
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-  }),
-});
+// Notifications.setNotificationHandler({
+//   handleNotification: async () => ({
+//     shouldShowAlert: true,
+//     shouldPlaySound: true,
+//     shouldSetBadge: true,
+//   }),
+// });
 
 type FormValues = {
   firstName: string;
@@ -38,41 +38,41 @@ type FormValues = {
 };
 
 const SignUpScreen = ({ navigation }: Props) => {
-  const [expoPushToken, setExpoPushToken] = useState<string | "">();
-  async function registerForPushNotificationsAsync() {
-    let token;
-    if (Platform.OS === 'android') {
-      await Notifications.setNotificationChannelAsync('default', {
-        name: 'default',
-        importance: Notifications.AndroidImportance.MAX,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#FF231F7C',
-      });
-    }
+  // const [expoPushToken, setExpoPushToken] = useState<string | "">();
+  // async function registerForPushNotificationsAsync() {
+  //   let token;
+  //   if (Platform.OS === 'android') {
+  //     await Notifications.setNotificationChannelAsync('default', {
+  //       name: 'default',
+  //       importance: Notifications.AndroidImportance.MAX,
+  //       vibrationPattern: [0, 250, 250, 250],
+  //       lightColor: '#FF231F7C',
+  //     });
+  //   }
   
-    if (Device.isDevice) {
-      const { status: existingStatus } = await Notifications.getPermissionsAsync();
-      let finalStatus = existingStatus;
-      if (existingStatus !== 'granted') {
-        const { status } = await Notifications.requestPermissionsAsync();
-        finalStatus = status;
-      }
-      if (finalStatus !== 'granted') {
-        alert('Failed to get push token for push notification!');
-        return "";
-      }
-      token = (await Notifications.getExpoPushTokenAsync({ projectId: '67c2210a-f038-4973-8a68-529d5a7fa0d3' })).data;
-      console.log(token);
-    } else {
-      alert('Must use physical device for Push Notifications');
-    }
+  //   if (Device.isDevice) {
+  //     const { status: existingStatus } = await Notifications.getPermissionsAsync();
+  //     let finalStatus = existingStatus;
+  //     if (existingStatus !== 'granted') {
+  //       const { status } = await Notifications.requestPermissionsAsync();
+  //       finalStatus = status;
+  //     }
+  //     if (finalStatus !== 'granted') {
+  //       alert('Failed to get push token for push notification!');
+  //       return "";
+  //     }
+  //     token = (await Notifications.getExpoPushTokenAsync({ projectId: '67c2210a-f038-4973-8a68-529d5a7fa0d3' })).data;
+  //     console.log(token);
+  //   } else {
+  //     alert('Must use physical device for Push Notifications');
+  //   }
   
-    return token;
-  }
+  //   return token;
+  // }
 
-  useEffect(()=>{
-    registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
-  },[])
+  // useEffect(()=>{
+  //   registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
+  // },[])
 
   const {
     control,
@@ -116,7 +116,7 @@ const SignUpScreen = ({ navigation }: Props) => {
         email: data.email,
         password: data.password,
         displayName,
-        pushToken: expoPushToken,
+        // pushToken: expoPushToken,
       }).catch((error) => {
         const message = getErrorMessage(error.code);
         setSnackbarMessage(message);

@@ -62,76 +62,76 @@ type Props = {
   navigation: EditAccountScreenNavigationProp;
 };
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-  }),
-});
+// Notifications.setNotificationHandler({
+//   handleNotification: async () => ({
+//     shouldShowAlert: true,
+//     shouldPlaySound: true,
+//     shouldSetBadge: true,
+//   }),
+// });
 
 const EditAccountScreen = ({ navigation }: Props) => {
 
-  async function registerForPushNotificationsAsync() {
-    let token;
-    if (Platform.OS === "android") {
-        await Notifications.setNotificationChannelAsync("default", {
-            name: "default",
-            importance: Notifications.AndroidImportance.MAX,
-            vibrationPattern: [0, 250, 250, 250],
-            lightColor: "#FF231F7C",
-        });
-    }
+//   async function registerForPushNotificationsAsync() {
+//     let token;
+//     if (Platform.OS === "android") {
+//         await Notifications.setNotificationChannelAsync("default", {
+//             name: "default",
+//             importance: Notifications.AndroidImportance.MAX,
+//             vibrationPattern: [0, 250, 250, 250],
+//             lightColor: "#FF231F7C",
+//         });
+//     }
 
-    if (Device.isDevice) {
-        const { status: existingStatus } = await Notifications.getPermissionsAsync();
-        let finalStatus = existingStatus;
-        if (existingStatus !== "granted") {
-            const { status } = await Notifications.requestPermissionsAsync();
-            finalStatus = status;
-        }
-        if (finalStatus !== "granted") {
-            console.log("Failed to get push token for push notification!");
-            return "";
-        }
-        token = (
-            await Notifications.getExpoPushTokenAsync({
-                projectId: "67c2210a-f038-4973-8a68-529d5a7fa0d3",
-            })
-        ).data;
-        console.log(token);
+//     if (Device.isDevice) {
+//         const { status: existingStatus } = await Notifications.getPermissionsAsync();
+//         let finalStatus = existingStatus;
+//         if (existingStatus !== "granted") {
+//             const { status } = await Notifications.requestPermissionsAsync();
+//             finalStatus = status;
+//         }
+//         if (finalStatus !== "granted") {
+//             console.log("Failed to get push token for push notification!");
+//             return "";
+//         }
+//         token = (
+//             await Notifications.getExpoPushTokenAsync({
+//                 projectId: "67c2210a-f038-4973-8a68-529d5a7fa0d3",
+//             })
+//         ).data;
+//         console.log(token);
 
-        // Update the user document with the push token
-        const userDoc = doc(db, "users", `${auth.currentUser?.uid}`);
-        await updateDoc(userDoc, {
-            expoPushToken: token,
-        });
-    } else {
-        alert("Must use physical device for Push Notifications");
-    }
+//         // Update the user document with the push token
+//         const userDoc = doc(db, "users", `${auth.currentUser?.uid}`);
+//         await updateDoc(userDoc, {
+//             expoPushToken: token,
+//         });
+//     } else {
+//         alert("Must use physical device for Push Notifications");
+//     }
 
-    return token;
-}
+//     return token;
+// }
 
-  const [isEnabled, setIsEnabled] = useState(false);
+//   const [isEnabled, setIsEnabled] = useState(false);
 
 
 
-  const toggleSwitch = async () => {
-    setIsEnabled((previousState) => !previousState);
-    if (!isEnabled) {
-        const token = await registerForPushNotificationsAsync();
-        if (!token) {
-            alert("Please enable notifications from your phone settings.");
-        }
-    } else {
-        // User wants to disable notifications, remove the push token
-        const userDoc = doc(db, "users", `${auth.currentUser?.uid}`);
-        await updateDoc(userDoc, {
-            expoPushToken: deleteField(),
-        });
-    }
-};
+//   const toggleSwitch = async () => {
+//     setIsEnabled((previousState) => !previousState);
+//     if (!isEnabled) {
+//         const token = await registerForPushNotificationsAsync();
+//         if (!token) {
+//             alert("Please enable notifications from your phone settings.");
+//         }
+//     } else {
+//         // User wants to disable notifications, remove the push token
+//         const userDoc = doc(db, "users", `${auth.currentUser?.uid}`);
+//         await updateDoc(userDoc, {
+//             expoPushToken: deleteField(),
+//         });
+//     }
+// };
 
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -232,7 +232,7 @@ const hideDialog = () => setAuthVisible(false);
     </Dialog.Actions>
   </Dialog>
 </Portal>
-        <View style={styles.switchContainer}>
+        {/* <View style={styles.switchContainer}>
           <Text style={styles.switchLabel}>Enable Push Notifications</Text>
           <Switch
             trackColor={{ false: "#767577", true: "#81b0ff" }}
@@ -241,7 +241,7 @@ const hideDialog = () => setAuthVisible(false);
             onValueChange={toggleSwitch}
             value={isEnabled}
           />
-        </View>
+        </View> */}
         <Divider  style={styles.divider} />
         <View
           style={{

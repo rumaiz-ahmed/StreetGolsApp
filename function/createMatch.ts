@@ -21,7 +21,7 @@ interface CreateMatchData {
   mapURL: string | null | undefined;
   longitude: string | null | undefined ;
     latitude: string | null | undefined;
-    creatorPushToken: string;
+    // creatorPushToken: string;
 
 }
 
@@ -45,7 +45,7 @@ export const CreateMatchFunction = async ({
   zip,
   latitude,
   longitude,
-  creatorPushToken,
+  // creatorPushToken,
 
 }: CreateMatchData) => {
   try {
@@ -72,8 +72,8 @@ export const CreateMatchFunction = async ({
       zip: zip,
       longitude: longitude,
       latitude: latitude,
-      creatorPushToken: creatorPushToken,
-      playersPushToken: [],
+      // creatorPushToken: creatorPushToken,
+      // playersPushToken: [],
     });
 
     const userDoc = doc(db, "users", auth.currentUser?.uid || "");
