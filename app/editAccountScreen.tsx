@@ -39,7 +39,7 @@ import { auth, db } from "../firebaseConfig";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 // Create a toggle function
-import { deleteField } from "firebase/firestore";
+import { deleteField, getDoc } from "firebase/firestore";
 
 // Navigation imports
 import {
@@ -108,7 +108,7 @@ const EditAccountScreen = ({ navigation }: Props) => {
       // Update the user document with the push token
       const userDoc = doc(db, "users", `${auth.currentUser?.uid}`);
       await updateDoc(userDoc, {
-        expoPushToken: token,
+        pushToken: token,
       });
     } else {
       alert("Must use physical device for Push Notifications");
@@ -119,21 +119,46 @@ const EditAccountScreen = ({ navigation }: Props) => {
 
   const [isEnabled, setIsEnabled] = useState(false);
 
-  const toggleSwitch = async () => {
-    setIsEnabled((previousState) => !previousState);
-    if (!isEnabled) {
+// Add this useEffect to check the current status of the push token when the screen is loaded
+useEffect(() => {
+  const checkPushToken = async () => {
+    const userDoc = doc(db, "users", `${auth.currentUser?.uid}`);
+    const userSnapshot = await getDoc(userDoc);
+    const userData = userSnapshot.data();
+    if (userData && userData.pushToken) {
+      setIsEnabled(true);
+    } else {
+      setIsEnabled(false);
+    }
+  };
+  checkPushToken();
+}, []);
+
+// Modify the toggleSwitch function to handle errors
+const toggleSwitch = async () => {
+  setIsEnabled((previousState) => !previousState);
+  if (!isEnabled) {
+    try {
       const token = await registerForPushNotificationsAsync();
       if (!token) {
         alert("Please enable notifications from your phone settings.");
       }
-    } else {
-      // User wants to disable notifications, remove the push token
+    } catch (e) {
+      console.error("Error registering for push notifications: ", e);
+      alert("An error occurred while registering for push notifications.");
+    }
+  } else {
+    try {
       const userDoc = doc(db, "users", `${auth.currentUser?.uid}`);
       await updateDoc(userDoc, {
-        expoPushToken: deleteField(),
+        pushToken: deleteField(),
       });
+    } catch (e) {
+      console.error("Error updating user document: ", e);
+      alert("An error occurred while updating your settings.");
     }
-  };
+  }
+};
 
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
